@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Blogly{% endblock %}</title>
+</head>
+<body>
+    <nav>
+        <a href="/">Blogly</a>
+    </nav>
+
+    <div>
+        <h1>{% block page_title %}{% endblock %}</h1>
+        {% block content %}{% endblock %}
+    </div>
+    <div>
+        <ul>
+            {% for users in User %}
+            <li>
+                <a href="/{{user.id}}">
+                    {{user.first_name}}
+                </a>
+            </li>
+            {% end for %}
+        </ul>
+    </div>
+</body>
+</html>
