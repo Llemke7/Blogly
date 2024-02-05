@@ -12,6 +12,18 @@
         <li>{{user.last_name}}</li>
         <li>{{user.img_url}}</li>
     </ul>
+    
+    <h2>User Details</h2>
+    <p>First Name: {{ user.first_name }}</p>
+    <p>Last Name: {{ user.last_name }}</p>
+    <p>Image URL: {{ user.image_url }}</p>
+
+    <h3>Posts</h3>
+    <ul>
+        {% for post in posts %}
+            <li>{{ post.title }}</li>
+        {% endfor %}
+    </ul>
     <a href="{{ url_for('edit_user', user_id=user.id) }}">Edit User</a>
     <a href="{{url_for('list_users') }}">Back Home</a>
 

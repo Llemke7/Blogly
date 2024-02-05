@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Post</title>
+</head>
+<body>
+    <h2>Show Post</h2>
+    <p>Title: {{ post.title }}</p>
+    <p>Content: {{ post.content }}</p>
+
+    <a href="{{ url_for('edit_post', post_id=post.id) }}">Edit</a>
+    <form method="post" action="{{ url_for('delete_post', post_id=post.id) }}">
+
+        <button type="submit">Delete</button>
+    </form>
+    <div>
+        <a href="{{ url_for('show_user', user_id=post.user.id) }}">User Details</a>
+    </div>
+    <div>
+        <a href="{{ url_for('list_users') }}">Back Home</a>
+    </div>
+</body>
+</html>

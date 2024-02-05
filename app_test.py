@@ -1,5 +1,5 @@
 from app import app, db
-from models import User
+from models import User, Post
 
 
 app.config['TESTING'] = True
@@ -53,3 +53,34 @@ def test_delete_user():
 
         deleted_user = User.query.get(user.id)
         assert deleted_user is None
+
+
+def test_new_post():
+    with app.test_client() as client:
+        user = User(first_name='John', last_name='Doe', image_url='test.jpg')
+        db.session.add(user)
+        db.session.commit()
+
+        resp = client.post(f'/users/{user.id}/posts/new', data={'title': 'New Post', 'content': 'This is a new post.'})
+        assert resp.status_code == 302
+
+        post = Post.query.filter_by(title='New Post').first()
+        assert post is not None
+        assert post.content == 'This is a new post.'
+        assert post.user_id == user.id
+
+def test_show_post():
+    with app.test_client() as client:
+        user = User(first_name='Jane', last_name='Doe', image_url='test.jpg')
+        db.session.add(user)
+        db.session.commit()
+
+        post = Post(title='Test Post', content='This is a test post.', user_id=user.id)
+        db.session.add(post)
+        db.session.commit()
+
+        resp = client.get(f'/posts/{post.id}')
+        assert resp.status_code == 200
+        assert b'Test Post' in resp.data
+        assert b'This is a test post.' in resp.data
+        assert b'Jane Doe' in resp.data
