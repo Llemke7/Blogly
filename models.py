@@ -32,3 +32,19 @@ class Post(db.Model):
 
     def __repr__(self):
         return f'<Post {self.title} by User {self.user_id}>'
+    
+class PostTag(db.Model):
+    __tablename__ = 'post_tags'
+
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), primary_key=True)
+
+    post = db.relationship('Post', backref='post_tags')
+    tag = db.relationship('Tag', backref='post_tags')
+
+class Tag(db.Model):
+    __tablename__ = "tags"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, unique=True)
+    posts = db.relationship('Post', secondary='post_tags', backref='tags')

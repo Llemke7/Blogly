@@ -14,8 +14,18 @@
         <label for="content">Content:</label>
         <textarea name="content" required>{{ post.content }}</textarea>
 
+        <label>Tags:</label>
+    {% for tag in tags %}
+        <input type="checkbox" id="tag-{{ tag.id }}" name="tags" value="{{ tag.id }}"
+               {% if tag in post.tags %} checked {% endif %}>
+        <label for="tag-{{ tag.id }}">{{ tag.name }}</label>
+        <br>
+    {% endfor %}
+
         <button type="submit">Save Changes</button>
     </form>
+
+    
     <a href="{{ url_for('show_user', user_id=post.user_id) }}">Cancel</a>
 </body>
 </html>

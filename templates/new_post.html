@@ -6,7 +6,7 @@
     <title>Add New Post</title>
 </head>
 <body>
-    <h2>Add New Post for {{ user.full_name }}</h2>
+    <h2>Add New Post for {{ user.first_name}}</h2>
   
     <form method="post" action="{{ url_for('create_post', user_id=user.id) }}">
 
@@ -15,10 +15,17 @@
         
         <label for="content">Content:</label>
         <textarea name="content" required></textarea>
+
+        <label for="tags">Tags:</label>
+    <select name="tags" multiple>
+        {% for tag in tags %}
+            <option value="{{ tag.id }}">{{ tag.name }}</option>
+        {% endfor %}
+    </select>
         
         <button type="submit">Upload</button>
     </form>
   
-    <a href="/show_user/{{ user.id }}">Cancel</a>
+    <a href="/user/{{ user.id }}">Cancel</a>
 </body>
 </html>

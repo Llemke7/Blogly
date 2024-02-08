@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tag Detail</title>
+</head>
+<body>
+    <h1>Tag Detail</h1>
+    <p><strong>ID:</strong> {{ tag.id }}</p>
+    <p><strong>Name:</strong> {{ tag.name }}</p>
+
+    <a href="{{ url_for('edit_tag', tag_id=tag.id) }}">Edit Tag</a>
+    <form action="{{ url_for('delete_tag', tag_id=tag.id) }}" method="post" style="display: inline;">
+        <button type="submit">Delete Tag</button>
+    </form>
+</body>
+</html>

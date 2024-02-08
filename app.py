@@ -2,7 +2,7 @@
 
 from flask import Flask, render_template, redirect, request, flash, url_for
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Post
+from models import db, connect_db, User, Post, Tag, PostTag
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///blogly'
@@ -40,7 +40,7 @@ def new_user():
 @app.route('/user/<int:user_id>')
 def show_user(user_id):
     """User Details/ Posts"""
-    user = User.query.get(user_id)
+    user = User.query.get_or_404(user_id)
     posts = Post.query.filter_by(user_id=user_id).all()
     return render_template('details.html', user=user, posts=posts)
 
@@ -75,7 +75,8 @@ def delete_user(user_id):
 def new_post_form(user_id):
     """New post"""
     user = User.query.get_or_404(user_id)
-    return render_template('new_post.html', user=user)
+    tags= Tag.query.all()
+    return render_template('new_post.html', user=user, tags=tags)
 
 @app.route('/users/<int:user_id>/posts/new', methods=['POST'])
 def create_post(user_id):
@@ -84,9 +85,15 @@ def create_post(user_id):
     
     title = request.form['title']
     content = request.form['content']
+  
     
     new_post = Post(title=title, content=content, user=user)
     db.session.add(new_post)
+
+    tag_ids= request.form.getlist('tags')
+    tags= Tag.query.filter(Tag.id.in_(tag_ids)).all()
+    new_post.tags.extend(tags)
+
     db.session.commit()
     
     return redirect(url_for('show_post', post_id = new_post.id))
@@ -104,6 +111,14 @@ def edit_post(post_id):
     if request.method == 'POST':
         post.title = request.form['title']
         post.content = request.form['content']
+
+        tag_ids= request.form.getlist('tags')
+        post.tags.clear()
+        for tag_id in tag_ids:
+            tag= Tag.query.get(tag_id)
+            if tag:
+                post.tags.append(tag)
+
         db.session.commit()
         flash('Post updated successfully!', 'success')
         return redirect(url_for('show_post', post_id=post.id))
@@ -122,3 +137,61 @@ def delete_post(post_id):
     db.session.commit()
     flash('Post deleted successfully!', 'success')
     return redirect(url_for('list_users'))
+
+
+@app.route('/add_tag', methods=['GET', 'POST'])
+def add_tag():
+    if request.method== 'POST':
+        tag_name = request.form['tag_name']
+        if not tag_name:
+            return 'Tag cannot be empty'
+        
+        existing_tag= Tag.query.filter_by(name=tag_name).first()
+        if existing_tag:
+            return 'Tag already exists'
+        
+        new_tag= Tag(name=tag_name)
+        db.session.add(new_tag)
+        db.session.commit()
+
+        return redirect('/')
+    else:
+        return render_template('add_tag.html')
+
+
+@app.route('/tags')
+def list_tags():
+    tags= Tag.query.all()
+    return render_template('tags.html', tags=tags)
+
+@app.route('/tags/<int:tag_id>')
+def tag_detail(tag_id):
+    tag = Tag.query.get_or_404(tag_id)
+    return render_template('tag_detail.html', tag=tag)
+
+@app.route('/tags/new', methods=['GET'])
+def new_tag():
+    return render_template('add_tag.html')
+
+
+@app.route('/tags/<int:tag_id>/edit', methods=['GET', 'POST'])
+def edit_tag(tag_id):
+    tag = Tag.query.get_or_404(tag_id)
+    if request.method == 'POST':
+    
+        tag.name = request.form['tag_name']
+        db.session.commit()
+        flash('Tag updated', 'success')
+        return redirect('/tags')
+    else:
+        return render_template('edit_tag.html', tag=tag)
+
+
+@app.route('/tags/<int:tag_id>/delete', methods=['POST'])
+def delete_tag(tag_id):
+    """Delete tag"""
+    tag = Tag.query.get_or_404(tag_id)
+    db.session.delete(tag)
+    db.session.commit()
+    flash('Tag deleted successfully', 'success')
+    return redirect('/tags')
